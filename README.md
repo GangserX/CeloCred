@@ -1,6 +1,6 @@
 # 🏦 CeloCred - Decentralized Credit Scoring for Merchants
 
-[![Celo](https://img.shields.io/badge/Celo-Alfajores-35D07F?style=flat&logo=celo)](https://alfajores.celoscan.io)
+[![Celo](https://img.shields.io/badge/Celo-Sepolia_Testnet-35D07F?style=flat&logo=celo)](https://celo-sepolia.blockscout.com)
 [![Flutter](https://img.shields.io/badge/Flutter-3.24.5-02569B?style=flat&logo=flutter)](https://flutter.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -72,7 +72,7 @@ CeloCred is a decentralized credit scoring and lending platform built on **Celo 
                       │
               ┌───────▼────────┐
               │  Celo Blockchain│
-              │   (Alfajores)   │
+              │ (Sepolia Testnet)│
               └─────────────────┘
                       │
         ┌─────────────┼─────────────┐
@@ -94,7 +94,7 @@ CeloCred is a decentralized credit scoring and lending platform built on **Celo 
 - Dart 3.5.4+
 - Node.js 18+
 - MetaMask or Valora wallet
-- Celo Alfajores testnet CELO (get from [faucet](https://faucet.celo.org))
+- Celo Sepolia testnet CELO (get from [faucet](https://faucet.celo.org/celo-sepolia))
 
 ### 📱 Run the Mobile App
 
@@ -134,14 +134,22 @@ npm start
 
 ## 📊 Smart Contracts
 
-All contracts deployed on **Celo Alfajores Testnet**:
+All contracts deployed on **Celo Sepolia Testnet** (Chain ID: 11142220):
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **MerchantRegistry** | [`0x161DA...5eC4`](https://alfajores.celoscan.io/address/0x161DA951ba19DEac6a281e22C725829D28735eC4) | Merchant registration & validation |
-| **PaymentProcessor** | [`0x56fC6...b3Ad`](https://alfajores.celoscan.io/address/0x56fC686df48b1e7EC99a8d48fCab37844F87b3Ad) | CELO & cUSD payment processing |
-| **LoanEscrow** | [`0x11D6D...9E68`](https://alfajores.celoscan.io/address/0x11D6DaF8A38ccaa156C077309Dd4C86A1cFE9E68) | Loan requests, funding & repayments |
-| **CreditScoreOracle** | [`0xaF04b...3C4c`](https://alfajores.celoscan.io/address/0xaF04bC6b274d6De4e6d260BDFA6B57EB14fd3C4c) | On-chain credit score storage |
+| **MerchantRegistry** | [`0xCC54cE...1098`](https://celo-sepolia.blockscout.com/address/0xCC54cE7e70F9680dce54c10Da3AC32b181b71098) | Merchant registration & validation |
+| **PaymentProcessor** | [`0xA801662...762c3`](https://celo-sepolia.blockscout.com/address/0xA801662e0fF360680b3C02e3cc9bF422617762c3) | CELO & cUSD payment processing |
+| **LoanEscrow** | [`0xEee8DFB...7E8Ab`](https://celo-sepolia.blockscout.com/address/0xEee8DFB32d5385f98674c3089B221E073117E8Ab) | Loan requests, funding & repayments |
+| **CreditScoreOracle** | [`0x3aAcA98...aEA1`](https://celo-sepolia.blockscout.com/address/0x3aAcA98e8D7F80B62cE31ac22085C72926EdaEA1) | On-chain credit score storage |
+
+**Network Details:**
+- **Network Name**: Celo Sepolia Testnet
+- **RPC URL**: https://forno.celo-sepolia.celo-testnet.org
+- **Chain ID**: 11142220
+- **Currency Symbol**: CELO
+- **Block Explorer**: https://celo-sepolia.blockscout.com
+- **Faucet**: https://faucet.celo.org/celo-sepolia
 
 ### Deploy Your Own Contracts
 
@@ -155,11 +163,11 @@ npm install
 cp .env.example .env
 # Add your private key to .env
 
-# Deploy to Alfajores
-npx hardhat run scripts/deploy.js --network alfajores
+# Deploy to Celo Sepolia
+npx hardhat run scripts/deploy.js --network celosepolia
 
 # Authorize oracle wallet
-npx hardhat run scripts/authorizeOracle.js --network alfajores
+npx hardhat run scripts/authorizeOracle.js --network celosepolia
 ```
 
 ---
@@ -349,14 +357,14 @@ Expected output:
 
 ### Manual Testing Flow
 1. Connect wallet via WalletConnect
-2. Register as merchant → Check [Celoscan](https://alfajores.celoscan.io)
+2. Register as merchant → Check [Blockscout](https://celo-sepolia.blockscout.com)
 3. Make test payment → Verify transaction
 4. Request loan → Check loan ID on-chain
 5. Run `npm run update-scores` → Verify credit score updates
 
 ---
 
-## 💰 Gas Costs (Alfajores Testnet)
+## 💰 Gas Costs (Celo Sepolia Testnet)
 
 | Operation | Estimated Gas | Cost (CELO)* |
 |-----------|--------------|-------------|
@@ -373,11 +381,13 @@ Expected output:
 
 ## 🐛 Known Issues & Limitations
 
-- ⚠️ Currently only supports Alfajores testnet
+- ⚠️ Currently only supports Celo Sepolia testnet
 - ⚠️ Firebase in test mode (open access) - secure before production
+- ⚠️ Firebase index required for merchant transactions (create at first query)
 - ⚠️ NFT approval flow not yet implemented
 - ⚠️ No batch loan funding yet (one at a time)
 - ⚠️ Oracle runs locally (needs cloud deployment for 24/7 operation)
+- ✅ Type casting issues fixed (num to int/double conversions)
 
 See [Issues](https://github.com/GangserX/CeloCred/issues) for full list.
 

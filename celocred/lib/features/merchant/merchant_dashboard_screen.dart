@@ -76,7 +76,7 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
 
       // Fetch credit score
       final creditScoreData = await FirebaseService.instance.getCreditScore(walletAddress);
-      final score = creditScoreData?['score'] as int?;
+      final score = (creditScoreData?['score'] as num?)?.toInt();
 
       setState(() {
         _merchantProfile = profile;
@@ -210,9 +210,9 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
             ? Colors.orange
             : Colors.red;
 
-    final totalSales = (_stats?['totalRevenue'] ?? 0.0) as double;
-    final totalTransactions = (_stats?['totalTransactions'] ?? 0) as int;
-    final averageTransaction = (_stats?['averageTransaction'] ?? 0.0) as double;
+    final totalSales = ((_stats?['totalRevenue'] ?? 0.0) as num).toDouble();
+    final totalTransactions = ((_stats?['totalTransactions'] ?? 0) as num).toInt();
+    final averageTransaction = ((_stats?['averageTransaction'] ?? 0.0) as num).toDouble();
 
     return Container(
       padding: const EdgeInsets.all(20),

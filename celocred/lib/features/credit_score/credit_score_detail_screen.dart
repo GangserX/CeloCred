@@ -48,7 +48,7 @@ class _CreditScoreDetailScreenState extends State<CreditScoreDetailScreen> {
       // In production: Parse PaymentProcessor events, calculate actual metrics
       
       setState(() {
-        _onChainScore = scoreData['score'] as int?;
+        _onChainScore = (scoreData['score'] as num?)?.toInt();
         _creditScore = CreditScoreBreakdown(
           transactionActivity: 85,
           transactionVolume: 72,

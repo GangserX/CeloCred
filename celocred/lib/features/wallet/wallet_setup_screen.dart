@@ -65,7 +65,7 @@ class _WalletSetupScreenState extends State<WalletSetupScreen> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Celo Alfajores Testnet',
+                    'Celo Sepolia Testnet',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -572,7 +572,7 @@ class _WalletSetupScreenState extends State<WalletSetupScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              '✓ Network: Celo Alfajores Testnet\n'
+              '✓ Network: Celo Sepolia Testnet\n'
               '✓ Secure Storage: Enabled\n'
               '✓ Ready for transactions',
               style: TextStyle(fontSize: 12, height: 1.5),

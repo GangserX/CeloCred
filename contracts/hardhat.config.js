@@ -14,9 +14,9 @@ module.exports = {
   },
   networks: {
     celosepolia: {
-      url: "https://alfajores-forno.celo-testnet.org",
+      url: "https://forno.celo-sepolia.celo-testnet.org",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 44787,
+      chainId: 11142220,
       verify: true,
       httpHeaders: {
         "Accept-Encoding": "gzip, deflate, br"

@@ -153,7 +153,7 @@ class Loan {
       autoRepaymentEnabled: json['autoRepaymentEnabled'] as bool? ?? false,
       autoRepaymentPercentage:
           (json['autoRepaymentPercentage'] as num?)?.toDouble() ?? 0.0,
-      creditScoreAtRequest: json['creditScoreAtRequest'] as int? ?? 0,
+      creditScoreAtRequest: (json['creditScoreAtRequest'] as num?)?.toInt() ?? 0,
       lenderAddresses:
           (json['lenderAddresses'] as List<dynamic>?)?.cast<String>() ?? [],
       lenderContributions:

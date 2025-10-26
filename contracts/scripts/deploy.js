@@ -74,8 +74,8 @@ async function main() {
   console.log("📱 UPDATE YOUR FLUTTER APP:");
   console.log("File: celocred/lib/core/constants/celo_config.dart\n");
   console.log("Replace the contract addresses with the ones above.");
-  console.log("\n🔍 View on Celo Explorer:");
-  console.log(`https://sepolia.explorer.celo.org/address/${merchantRegistryAddress}`);
+  console.log("\n🔍 View on Celo Sepolia Explorer:");
+  console.log(`https://celo-sepolia.blockscout.com/address/${merchantRegistryAddress}`);
   console.log("\n✅ Deployment complete!\n");
 }
 

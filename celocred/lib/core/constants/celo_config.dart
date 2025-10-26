@@ -5,14 +5,14 @@ class CeloConfig {
 
   // Chain IDs
   static const int celoMainnetChainId = 42220;
-  static const int celoTestnetChainId = 44787; // Celo Sepolia Testnet
+  static const int celoTestnetChainId = 11142220; // Celo Sepolia Testnet
 
   static int get chainId =>
       useTestnet ? celoTestnetChainId : celoMainnetChainId;
 
   // RPC Endpoints
   static const String celoMainnetRpc = 'https://forno.celo.org';
-  static const String celoTestnetRpc = 'https://sepolia-forno.celo-testnet.org';
+  static const String celoTestnetRpc = 'https://forno.celo-sepolia.celo-testnet.org';
 
   static String get rpcUrl => useTestnet ? celoTestnetRpc : celoMainnetRpc;
 
@@ -47,7 +47,7 @@ class CeloConfig {
   // Explorer URLs
   static const String celoMainnetExplorer = 'https://explorer.celo.org';
   static const String celoTestnetExplorer =
-      'https://sepolia.explorer.celo.org';
+      'https://celo-sepolia.blockscout.com';
 
   static String get explorerUrl =>
       useTestnet ? celoTestnetExplorer : celoMainnetExplorer;
@@ -56,22 +56,22 @@ class CeloConfig {
   static const String merchantRegistryMainnet =
       '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String merchantRegistryTestnet =
-      '0x5E9C136D8a73E3B964629D4a1D700061DdDc79cD'; // ✅ Deployed on Sepolia (Oct 26, 2025)
+      '0xCC54cE7e70F9680dce54c10Da3AC32b181b71098'; // ✅ Deployed on Celo Sepolia (Chain ID: 11142220) - Oct 26, 2025
 
   static const String loanEscrowMainnet =
       '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String loanEscrowTestnet =
-      '0x18F0f12d38eF0a0994018081EEd7cF2bc9277d15'; // ✅ Deployed on Sepolia (Oct 26, 2025)
+      '0xEee8DFB32d5385f98674c3089B221E073117E8Ab'; // ✅ Deployed on Celo Sepolia (Chain ID: 11142220) - Oct 26, 2025
 
   static const String paymentProcessorMainnet =
       '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String paymentProcessorTestnet =
-      '0x71FFF6e3120d1AacC6eFb22Ca357654c591F5A70'; // ✅ Deployed on Sepolia (Oct 26, 2025)
+      '0xA801662e0fF360680b3C02e3cc9bF422617762c3'; // ✅ Deployed on Celo Sepolia (Chain ID: 11142220) - Oct 26, 2025
 
   static const String creditScoreOracleMainnet =
       '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String creditScoreOracleTestnet =
-      '0xeD8A8199d2C6080E6d1dD501E2AEcD32668b0Ae9'; // ✅ Deployed on Sepolia (Oct 26, 2025)
+      '0x3aAcA98e8D7F80B62cE31ac22085C72926EdaEA1'; // ✅ Deployed on Celo Sepolia (Chain ID: 11142220) - Oct 26, 2025
 
   static String get merchantRegistryAddress =>
       useTestnet ? merchantRegistryTestnet : merchantRegistryMainnet;

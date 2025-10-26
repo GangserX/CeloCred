@@ -65,7 +65,7 @@ class AppKitService {
         },
       );
 
-      // Configure for Celo Alfajores testnet
+      // Configure for Celo Sepolia testnet
       await _appKitModal!.init();
       _isInitialized = true;
       
@@ -91,7 +91,7 @@ class AppKitService {
         // Get first account from session
         final address = session?.getAccounts()?.firstOrNull;
         debugPrint('✅ Wallet connected: $address');
-        return address?.split(':').last; // Extract address from CAIP-10 format (eip155:44787:0x...)
+        return address?.split(':').last; // Extract address from CAIP-10 format (eip155:11142220:0x...)
       }
       
       return null;

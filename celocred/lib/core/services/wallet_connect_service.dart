@@ -142,11 +142,12 @@ class WalletConnectService {
           'Connect MetaMask',
           'Steps to connect:\n\n'
           '1. MetaMask app is now opening\n'
-          '2. Add Celo Alfajores network if not added:\n'
-          '   - Network: Celo Alfajores Testnet\n'
-          '   - RPC: https://alfajores-forno.celo-testnet.org\n'
-          '   - Chain ID: 44787\n'
+          '2. Add Celo Sepolia network if not added:\n'
+          '   - Network: Celo Sepolia Testnet\n'
+          '   - RPC: https://forno.celo-sepolia.celo-testnet.org\n'
+          '   - Chain ID: 11142220\n'
           '   - Currency: CELO\n'
+          '   - Block Explorer: https://celo-sepolia.blockscout.com\n'
           '3. Copy your wallet address\n'
           '4. Return to CeloCred\n'
           '5. Paste your address in the manual input field',

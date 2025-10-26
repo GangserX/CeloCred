@@ -240,7 +240,7 @@ class _MerchantOnboardingScreenState extends State<MerchantOnboardingScreen> {
 
             // Business Category
             DropdownButtonFormField<String>(
-              value: _businessCategoryController.text.isEmpty 
+              initialValue: _businessCategoryController.text.isEmpty 
                   ? null 
                   : _businessCategoryController.text,
               decoration: InputDecoration(
@@ -570,7 +570,7 @@ class _MerchantOnboardingScreenState extends State<MerchantOnboardingScreen> {
                       'Wallet Address',
                       walletProvider.walletAddress ?? 'Not connected',
                     ),
-                    _buildReviewItem('Network', 'Celo Alfajores Testnet'),
+                    _buildReviewItem('Network', 'Celo Sepolia Testnet'),
                   ],
                 );
               },

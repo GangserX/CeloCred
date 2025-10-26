@@ -301,7 +301,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _buildDetailRow('Network', 'Celo Alfajores'),
+                    _buildDetailRow('Network', 'Celo Sepolia'),
                     _buildDetailRow('Gas Fee', '~0.001 CELO'),
                     _buildDetailRow('Estimated Time', '~5 seconds'),
                     const Divider(height: 16),

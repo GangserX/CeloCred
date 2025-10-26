@@ -142,7 +142,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     const Divider(height: 24),
                     _buildDetailRow(
                       'Network',
-                      'Celo Alfajores',
+                      'Celo Sepolia',
                       icon: Icons.network_check,
                     ),
                   ],
@@ -264,7 +264,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   }
 
   Future<void> _viewOnExplorer(BuildContext context) async {
-    final url = 'https://alfajores.celoscan.io/tx/$txHash';
+    final url = 'https://celo-sepolia.blockscout.com/tx/$txHash';
     final uri = Uri.parse(url);
     
     if (await canLaunchUrl(uri)) {

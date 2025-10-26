@@ -89,8 +89,8 @@ class Merchant {
           ? DateTime.parse(json['registeredDate'] as String)
           : DateTime.now(),
       totalSales: (json['totalSales'] as num?)?.toDouble() ?? 0.0,
-      transactionCount: json['transactionCount'] as int? ?? 0,
-      creditScore: json['creditScore'] as int? ?? 0,
+      transactionCount: (json['transactionCount'] as num?)?.toInt() ?? 0,
+      creditScore: (json['creditScore'] as num?)?.toInt() ?? 0,
       badges: (json['badges'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }

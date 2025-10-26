@@ -52,7 +52,7 @@ class _LoanRequestScreenState extends State<LoanRequestScreen> {
       final scoreData = await _contractService.getCreditScore(walletAddress);
       
       // Extract score from returned map
-      final scoreValue = scoreData['score'] as int?;
+      final scoreValue = (scoreData['score'] as num?)?.toInt();
       final exists = scoreData['exists'] as bool? ?? false;
       
       if (exists && scoreValue != null && scoreValue > 0) {

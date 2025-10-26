@@ -39,7 +39,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   // ignore: unused_field
   bool _isFunding = false;
   // ignore: unused_field
-  double _cUSDBalance = 0.0;
+  final double _cUSDBalance = 0.0;
 
   @override
   Widget build(BuildContext context) {

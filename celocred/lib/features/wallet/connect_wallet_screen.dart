@@ -87,7 +87,7 @@ class _ConnectWalletScreenState extends State<ConnectWalletScreen> {
                   Icon(Icons.link, color: Colors.blue.shade700, size: 20),
                   const SizedBox(width: 8),
                   const Text(
-                    'Celo Alfajores Testnet',
+                    'Celo Sepolia Testnet',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
