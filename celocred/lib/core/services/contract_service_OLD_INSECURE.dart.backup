@@ -1,0 +1,428 @@
+import 'package:http/http.dart' as http;
+import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/crypto.dart';
+import '../constants/celo_config.dart';
+
+/// Service for interacting with deployed CeloCred smart contracts
+class ContractService {
+  late Web3Client _client;
+  late DeployedContract _merchantRegistry;
+  late DeployedContract _paymentProcessor;
+  late DeployedContract _loanEscrow;
+  late DeployedContract _creditScoreOracle;
+
+  ContractService() {
+    _client = Web3Client(CeloConfig.rpcUrl, http.Client());
+    _initializeContracts();
+  }
+
+  void _initializeContracts() {
+    _merchantRegistry = DeployedContract(
+      ContractAbi.fromJson(_merchantRegistryABI, 'MerchantRegistry'),
+      EthereumAddress.fromHex(CeloConfig.merchantRegistryAddress),
+    );
+
+    _paymentProcessor = DeployedContract(
+      ContractAbi.fromJson(_paymentProcessorABI, 'PaymentProcessor'),
+      EthereumAddress.fromHex(CeloConfig.paymentProcessorAddress),
+    );
+
+    _loanEscrow = DeployedContract(
+      ContractAbi.fromJson(_loanEscrowABI, 'LoanEscrow'),
+      EthereumAddress.fromHex(CeloConfig.loanEscrowAddress),
+    );
+
+    _creditScoreOracle = DeployedContract(
+      ContractAbi.fromJson(_creditScoreOracleABI, 'CreditScoreOracle'),
+      EthereumAddress.fromHex(CeloConfig.creditScoreOracleAddress),
+    );
+  }
+
+  // ==================== MERCHANT REGISTRY ====================
+
+  /// Register a merchant on-chain
+  Future<String> registerMerchant({
+    required String privateKeyHex,
+    required String businessName,
+    required String category,
+    required String location,
+  }) async {
+    try {
+      if (privateKeyHex.startsWith('0x')) {
+        privateKeyHex = privateKeyHex.substring(2);
+      }
+
+      final credentials = EthPrivateKey(hexToBytes(privateKeyHex));
+      final function = _merchantRegistry.function('registerMerchant');
+
+      final txHash = await _client.sendTransaction(
+        credentials,
+        Transaction.callContract(
+          contract: _merchantRegistry,
+          function: function,
+          parameters: [businessName, category, location],
+          maxGas: 300000,
+        ),
+        chainId: CeloConfig.chainId,
+      );
+
+      print('✅ Merchant registered! TxHash: $txHash');
+      return txHash;
+    } catch (e) {
+      print('❌ Error registering merchant: $e');
+      rethrow;
+    }
+  }
+
+  /// Get merchant details from blockchain
+  Future<Map<String, dynamic>> getMerchant(String merchantAddress) async {
+    try {
+      final function = _merchantRegistry.function('getMerchant');
+      final result = await _client.call(
+        contract: _merchantRegistry,
+        function: function,
+        params: [EthereumAddress.fromHex(merchantAddress)],
+      );
+
+      return {
+        'businessName': result[0] as String,
+        'category': result[1] as String,
+        'location': result[2] as String,
+        'registrationDate': (result[3] as BigInt).toInt(),
+        'isActive': result[4] as bool,
+        'totalTransactions': (result[5] as BigInt).toInt(),
+        'totalVolume': (result[6] as BigInt).toInt(),
+      };
+    } catch (e) {
+      print('❌ Error getting merchant: $e');
+      rethrow;
+    }
+  }
+
+  /// Check if address is a registered merchant
+  Future<bool> isMerchant(String address) async {
+    try {
+      final function = _merchantRegistry.function('isMerchant');
+      final result = await _client.call(
+        contract: _merchantRegistry,
+        function: function,
+        params: [EthereumAddress.fromHex(address)],
+      );
+      return result[0] as bool;
+    } catch (e) {
+      print('❌ Error checking merchant: $e');
+      return false;
+    }
+  }
+
+  // ==================== PAYMENT PROCESSOR ====================
+
+  /// Process payment in CELO
+  Future<String> payWithCELO({
+    required String privateKeyHex,
+    required String merchantAddress,
+    required double amount,
+    required String note,
+  }) async {
+    try {
+      if (privateKeyHex.startsWith('0x')) {
+        privateKeyHex = privateKeyHex.substring(2);
+      }
+
+      final credentials = EthPrivateKey(hexToBytes(privateKeyHex));
+      final function = _paymentProcessor.function('payWithCELO');
+      
+      // Convert amount to Wei (smallest unit)
+      final amountInWei = BigInt.from((amount * 1e18).toInt());
+      final ethAmount = EtherAmount.inWei(amountInWei);
+
+      print('💰 Sending CELO payment:');
+      print('   Amount: $amount CELO');
+      print('   Amount in Wei: $amountInWei');
+      print('   Merchant: $merchantAddress');
+      print('   Note: $note');
+
+      final txHash = await _client.sendTransaction(
+        credentials,
+        Transaction.callContract(
+          contract: _paymentProcessor,
+          function: function,
+          parameters: [EthereumAddress.fromHex(merchantAddress), note],
+          value: ethAmount,
+          maxGas: 300000,
+        ),
+        chainId: CeloConfig.chainId,
+      );
+
+      print('✅ Payment successful! TxHash: $txHash');
+      return txHash;
+    } catch (e) {
+      print('❌ Error processing CELO payment: $e');
+      rethrow;
+    }
+  }
+
+  /// Process payment in cUSD
+  Future<String> payWithCUSD({
+    required String privateKeyHex,
+    required String merchantAddress,
+    required double amount,
+    required String note,
+  }) async {
+    try {
+      if (privateKeyHex.startsWith('0x')) {
+        privateKeyHex = privateKeyHex.substring(2);
+      }
+
+      final credentials = EthPrivateKey(hexToBytes(privateKeyHex));
+      final amountInWei = BigInt.from((amount * 1e18).toInt());
+
+      print('💰 Processing cUSD payment:');
+      print('   Amount: $amount cUSD');
+      print('   Amount in Wei: $amountInWei');
+      print('   Merchant: $merchantAddress');
+
+      // Step 1: Approve PaymentProcessor to spend cUSD
+      print('   Step 1: Approving PaymentProcessor to spend cUSD...');
+      final cUSDContract = DeployedContract(
+        ContractAbi.fromJson(
+          '[{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"}]',
+          'cUSD',
+        ),
+        EthereumAddress.fromHex(CeloConfig.cUSDAddress),
+      );
+
+      final approveFunction = cUSDContract.function('approve');
+      await _client.sendTransaction(
+        credentials,
+        Transaction.callContract(
+          contract: cUSDContract,
+          function: approveFunction,
+          parameters: [
+            EthereumAddress.fromHex(CeloConfig.paymentProcessorAddress),
+            amountInWei,
+          ],
+          maxGas: 100000,
+        ),
+        chainId: CeloConfig.chainId,
+      );
+      
+      print('   ✅ Approval successful!');
+
+      // Wait a bit for approval to be mined
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Step 2: Call payWithCUSD on PaymentProcessor
+      print('   Step 2: Calling payWithCUSD...');
+      final function = _paymentProcessor.function('payWithCUSD');
+
+      final txHash = await _client.sendTransaction(
+        credentials,
+        Transaction.callContract(
+          contract: _paymentProcessor,
+          function: function,
+          parameters: [
+            EthereumAddress.fromHex(merchantAddress),
+            amountInWei,
+            note
+          ],
+          maxGas: 300000,
+        ),
+        chainId: CeloConfig.chainId,
+      );
+
+      print('✅ cUSD payment successful! TxHash: $txHash');
+      return txHash;
+    } catch (e) {
+      print('❌ Error processing cUSD payment: $e');
+      rethrow;
+    }
+  }
+
+  // ==================== LOAN ESCROW ====================
+
+  /// Request a loan on-chain
+  Future<String> requestLoan({
+    required String privateKeyHex,
+    required double amount,
+    required int interestRate, // basis points (e.g., 500 = 5%)
+    required int durationDays,
+  }) async {
+    try {
+      if (privateKeyHex.startsWith('0x')) {
+        privateKeyHex = privateKeyHex.substring(2);
+      }
+
+      final credentials = EthPrivateKey(hexToBytes(privateKeyHex));
+      final function = _loanEscrow.function('requestLoan');
+      final amountInWei = BigInt.from((amount * 1e18).toInt());
+
+      final txHash = await _client.sendTransaction(
+        credentials,
+        Transaction.callContract(
+          contract: _loanEscrow,
+          function: function,
+          parameters: [amountInWei, BigInt.from(interestRate), BigInt.from(durationDays)],
+          maxGas: 300000,
+        ),
+        chainId: CeloConfig.chainId,
+      );
+
+      print('✅ Loan requested! TxHash: $txHash');
+      return txHash;
+    } catch (e) {
+      print('❌ Error requesting loan: $e');
+      rethrow;
+    }
+  }
+
+  /// Get all pending loans from blockchain
+  Future<List<String>> getPendingLoans() async {
+    try {
+      final function = _loanEscrow.function('getPendingLoans');
+      final result = await _client.call(
+        contract: _loanEscrow,
+        function: function,
+        params: [],
+      );
+
+      final loanIds = result[0] as List;
+      return loanIds.map((id) => '0x${id.toString().substring(2)}').toList();
+    } catch (e) {
+      print('❌ Error getting pending loans: $e');
+      return [];
+    }
+  }
+
+  // ==================== CREDIT SCORE ORACLE ====================
+
+  /// Get credit score from blockchain
+  Future<int?> getCreditScore(String address) async {
+    try {
+      final function = _creditScoreOracle.function('getCreditScore');
+      final result = await _client.call(
+        contract: _creditScoreOracle,
+        function: function,
+        params: [EthereumAddress.fromHex(address)],
+      );
+
+      final score = (result[0] as BigInt).toInt();
+      final exists = result[2] as bool;
+
+      if (!exists) return null;
+      return score;
+    } catch (e) {
+      print('❌ Error getting credit score: $e');
+      return null;
+    }
+  }
+
+  void dispose() {
+    _client.dispose();
+  }
+
+  // ==================== CONTRACT ABIs ====================
+
+  static const String _merchantRegistryABI = '''
+  [
+    {
+      "inputs": [
+        {"internalType": "string", "name": "_businessName", "type": "string"},
+        {"internalType": "string", "name": "_category", "type": "string"},
+        {"internalType": "string", "name": "_location", "type": "string"}
+      ],
+      "name": "registerMerchant",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_merchantAddress", "type": "address"}],
+      "name": "getMerchant",
+      "outputs": [
+        {"internalType": "string", "name": "businessName", "type": "string"},
+        {"internalType": "string", "name": "category", "type": "string"},
+        {"internalType": "string", "name": "location", "type": "string"},
+        {"internalType": "uint256", "name": "registrationDate", "type": "uint256"},
+        {"internalType": "bool", "name": "isActive", "type": "bool"},
+        {"internalType": "uint256", "name": "totalTransactions", "type": "uint256"},
+        {"internalType": "uint256", "name": "totalVolume", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_address", "type": "address"}],
+      "name": "isMerchant",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+  ''';
+
+  static const String _paymentProcessorABI = '''
+  [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "_merchant", "type": "address"},
+        {"internalType": "string", "name": "_note", "type": "string"}
+      ],
+      "name": "payWithCELO",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "address", "name": "_merchant", "type": "address"},
+        {"internalType": "uint256", "name": "_amount", "type": "uint256"},
+        {"internalType": "string", "name": "_note", "type": "string"}
+      ],
+      "name": "payWithCUSD",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+  ''';
+
+  static const String _loanEscrowABI = '''
+  [
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "_amount", "type": "uint256"},
+        {"internalType": "uint256", "name": "_interestRate", "type": "uint256"},
+        {"internalType": "uint256", "name": "_durationDays", "type": "uint256"}
+      ],
+      "name": "requestLoan",
+      "outputs": [{"internalType": "bytes32", "name": "", "type": "bytes32"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPendingLoans",
+      "outputs": [{"internalType": "bytes32[]", "name": "", "type": "bytes32[]"}],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+  ''';
+
+  static const String _creditScoreOracleABI = '''
+  [
+    {
+      "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
+      "name": "getCreditScore",
+      "outputs": [
+        {"internalType": "uint256", "name": "score", "type": "uint256"},
+        {"internalType": "uint256", "name": "lastUpdated", "type": "uint256"},
+        {"internalType": "bool", "name": "exists", "type": "bool"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+  ''';
+}

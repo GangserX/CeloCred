@@ -1,0 +1,31 @@
+{
+  "name": "celocred-oracle-service",
+  "version": "1.0.0",
+  "description": "Credit Score Oracle Backend Service for CeloCred",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "update-scores": "node updateScores.js",
+    "test": "node test.js",
+    "setup": "node setup.js"
+  },
+  "keywords": [
+    "celo",
+    "credit-score",
+    "oracle",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "firebase-admin": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0"
+  }
+}

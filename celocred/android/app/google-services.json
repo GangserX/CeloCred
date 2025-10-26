@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "591975707019",
+    "project_id": "ceocred",
+    "storage_bucket": "ceocred.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591975707019:android:b2494ceedcbe2a92b4ff8e",
+        "android_client_info": {
+          "package_name": "com.example.celocred"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvGXse33LIcZ_vzRM89qPWgRWZwUoRL2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
