@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'manual_payment_screen.dart';
+import 'payment_confirmation_screen.dart';
+import '../../core/services/contract_service.dart';
 
 /// QR Scanner Screen for payment
 class QRScannerScreen extends StatefulWidget {
@@ -12,6 +15,7 @@ class QRScannerScreen extends StatefulWidget {
 class _QRScannerScreenState extends State<QRScannerScreen> {
   MobileScannerController cameraController = MobileScannerController();
   bool _isProcessing = false;
+  final _contractService = ContractService();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +68,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     );
   }
 
-  void _onDetect(BarcodeCapture capture) {
+  void _onDetect(BarcodeCapture capture) async {
     if (_isProcessing) return;
     
     final List<Barcode> barcodes = capture.barcodes;
@@ -75,8 +79,94 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
     setState(() => _isProcessing = true);
 
-    // Navigate to payment screen
-    Navigator.pop(context, code);
+    try {
+      // Parse QR code data
+      // Format: "celocred:merchant:BusinessName:0xAddress"
+      // Or just: "0xAddress"
+      
+      String merchantAddress = '';
+      String merchantName = 'Merchant';
+      String merchantCategory = 'General';
+
+      if (code.startsWith('celocred:merchant:')) {
+        // Parse CeloCred format
+        final parts = code.split(':');
+        if (parts.length >= 4) {
+          merchantName = parts[2];
+          merchantAddress = parts[3];
+        }
+      } else if (code.startsWith('0x') && code.length == 42) {
+        // Direct wallet address
+        merchantAddress = code;
+      } else {
+        // Show error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid QR code format'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() => _isProcessing = false);
+        return;
+      }
+
+      // Verify merchant on blockchain
+      print('🔍 Verifying merchant: $merchantAddress');
+      
+      final isMerchant = await _contractService.isMerchant(merchantAddress);
+      
+      if (isMerchant) {
+        // Get merchant details from blockchain
+        final merchantData = await _contractService.getMerchant(merchantAddress);
+        merchantName = merchantData['businessName'] ?? merchantName;
+        merchantCategory = merchantData['category'] ?? merchantCategory;
+        
+        if (mounted) {
+          // Navigate to payment confirmation
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentConfirmationScreen(
+                merchantName: merchantName,
+                merchantAddress: merchantAddress,
+                merchantCategory: merchantCategory,
+              ),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          // Show error and navigate to manual payment
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('⚠️ Address not a registered merchant'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          
+          // Navigate to manual payment with address pre-filled
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ManualPaymentScreen(),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error processing QR code: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() => _isProcessing = false);
+      }
+    }
   }
 
   @override

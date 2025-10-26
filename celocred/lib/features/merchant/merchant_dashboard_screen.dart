@@ -529,7 +529,10 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
           final transaction = _recentTransactions[index];
           final amount = transaction['amount'] ?? 0;
           final currency = transaction['currency'] ?? 'cUSD';
-          final customerAddress = transaction['customerAddress'] ?? 'Unknown';
+          final type = transaction['type'] ?? 'received';
+          final otherAddress = type == 'received' 
+              ? (transaction['customerAddress'] ?? 'Unknown')
+              : (transaction['merchantAddress'] ?? 'Unknown');
           final timestamp = transaction['timestamp'];
           
           String timeAgo = 'Just now';
@@ -551,6 +554,11 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
             dateStr = '${txDate.month}/${txDate.day}/${txDate.year}';
           }
 
+          // Determine color based on type
+          final iconColor = type == 'received' ? Colors.green : Colors.orange;
+          final iconBgColor = type == 'received' ? Colors.green.shade100 : Colors.orange.shade100;
+          final icon = type == 'received' ? Icons.arrow_downward : Icons.arrow_upward;
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 2,
@@ -567,12 +575,12 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.green.shade100,
+                        color: iconBgColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.arrow_downward,
-                        color: Colors.green,
+                      child: Icon(
+                        icon,
+                        color: iconColor,
                         size: 20,
                       ),
                     ),
@@ -584,9 +592,9 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Payment Received',
-                            style: TextStyle(
+                          Text(
+                            type == 'received' ? 'Payment Received' : 'Payment Sent',
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -601,7 +609,7 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> with 
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${customerAddress.substring(0, 6)}...${customerAddress.substring(customerAddress.length - 4)}',
+                            '${otherAddress.substring(0, 6)}...${otherAddress.substring(otherAddress.length - 4)}',
                             style: TextStyle(
                               fontSize: 11,
                               fontFamily: 'monospace',

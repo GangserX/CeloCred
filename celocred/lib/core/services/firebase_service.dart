@@ -247,24 +247,55 @@ class FirebaseService {
 
   // ========== TRANSACTION OPERATIONS ==========
 
-  /// Get merchant's payment transactions
+  /// Get merchant's payment transactions (both received and sent)
   Future<List<Map<String, dynamic>>> getMerchantTransactions(
     String walletAddress, {
     int limit = 100,
   }) async {
     try {
-      final snapshot = await _firestore
+      // Fetch transactions where merchant is the receiver
+      final receivedSnapshot = await _firestore
           .collection('transactions')
           .where('merchantAddress', isEqualTo: walletAddress.toLowerCase())
           .orderBy('timestamp', descending: true)
           .limit(limit)
           .get();
 
-      return snapshot.docs.map((doc) {
+      // Fetch transactions where merchant is the sender (customer payments)
+      final sentSnapshot = await _firestore
+          .collection('transactions')
+          .where('customerAddress', isEqualTo: walletAddress.toLowerCase())
+          .orderBy('timestamp', descending: true)
+          .limit(limit)
+          .get();
+
+      // Combine and deduplicate
+      final Map<String, Map<String, dynamic>> transactionsMap = {};
+      
+      for (var doc in receivedSnapshot.docs) {
         final data = doc.data();
         data['id'] = doc.id;
-        return data;
-      }).toList();
+        data['type'] = 'received'; // Mark as received
+        transactionsMap[doc.id] = data;
+      }
+      
+      for (var doc in sentSnapshot.docs) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        data['type'] = 'sent'; // Mark as sent
+        transactionsMap[doc.id] = data;
+      }
+
+      // Sort by timestamp
+      final transactions = transactionsMap.values.toList();
+      transactions.sort((a, b) {
+        final aTime = a['timestamp'] as Timestamp?;
+        final bTime = b['timestamp'] as Timestamp?;
+        if (aTime == null || bTime == null) return 0;
+        return bTime.compareTo(aTime); // Descending order
+      });
+
+      return transactions.take(limit).toList();
     } catch (e) {
       print('❌ Error getting merchant transactions: $e');
       return [];
@@ -277,42 +308,69 @@ class FirebaseService {
       final transactions = await getMerchantTransactions(walletAddress);
       
       double totalRevenue = 0;
-      int totalTransactions = transactions.length;
-      int todayTransactions = 0;
+      double totalSpent = 0;
+      int totalReceived = 0;
+      int totalSent = 0;
+      int todayReceived = 0;
+      int todaySent = 0;
       double todayRevenue = 0;
+      double todaySpent = 0;
       
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       
       for (var tx in transactions) {
         final amount = (tx['amount'] ?? 0).toDouble();
-        totalRevenue += amount;
+        final type = tx['type'] ?? 'received';
+        
+        if (type == 'received') {
+          totalRevenue += amount;
+          totalReceived++;
+        } else {
+          totalSpent += amount;
+          totalSent++;
+        }
         
         // Check if transaction is from today
         if (tx['timestamp'] != null) {
           final txDate = (tx['timestamp'] as Timestamp).toDate();
           final txDay = DateTime(txDate.year, txDate.month, txDate.day);
           if (txDay.isAtSameMomentAs(today)) {
-            todayTransactions++;
-            todayRevenue += amount;
+            if (type == 'received') {
+              todayReceived++;
+              todayRevenue += amount;
+            } else {
+              todaySent++;
+              todaySpent += amount;
+            }
           }
         }
       }
 
       return {
         'totalRevenue': totalRevenue,
-        'totalTransactions': totalTransactions,
-        'todayTransactions': todayTransactions,
+        'totalSpent': totalSpent,
+        'netIncome': totalRevenue - totalSpent,
+        'totalTransactions': totalReceived + totalSent,
+        'totalReceived': totalReceived,
+        'totalSent': totalSent,
+        'todayTransactions': todayReceived + todaySent,
         'todayRevenue': todayRevenue,
-        'averageTransaction': totalTransactions > 0 ? totalRevenue / totalTransactions : 0,
+        'todaySpent': todaySpent,
+        'averageTransaction': totalReceived > 0 ? totalRevenue / totalReceived : 0,
       };
     } catch (e) {
       print('❌ Error calculating merchant stats: $e');
       return {
         'totalRevenue': 0.0,
+        'totalSpent': 0.0,
+        'netIncome': 0.0,
         'totalTransactions': 0,
+        'totalReceived': 0,
+        'totalSent': 0,
         'todayTransactions': 0,
         'todayRevenue': 0.0,
+        'todaySpent': 0.0,
         'averageTransaction': 0.0,
       };
     }

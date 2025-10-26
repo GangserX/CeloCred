@@ -74,9 +74,15 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         (bool success, ) = _merchant.call{value: msg.value}("");
         require(success, "CELO transfer failed");
 
-        // Update merchant transaction stats in MerchantRegistry
+        // Update merchant transaction stats in MerchantRegistry (only if receiver is a merchant)
         if (address(merchantRegistry) != address(0)) {
-            merchantRegistry.recordTransaction(_merchant, msg.value);
+            try merchantRegistry.isMerchant(_merchant) returns (bool isMerchant) {
+                if (isMerchant) {
+                    merchantRegistry.recordTransaction(_merchant, msg.value);
+                }
+            } catch {
+                // Recipient is not a merchant, skip recording
+            }
         }
 
         // Record payment
@@ -114,9 +120,15 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         bool success = cUSDToken.transferFrom(msg.sender, _merchant, _amount);
         require(success, "cUSD transfer failed");
 
-        // Update merchant transaction stats in MerchantRegistry
+        // Update merchant transaction stats in MerchantRegistry (only if receiver is a merchant)
         if (address(merchantRegistry) != address(0)) {
-            merchantRegistry.recordTransaction(_merchant, _amount);
+            try merchantRegistry.isMerchant(_merchant) returns (bool isMerchant) {
+                if (isMerchant) {
+                    merchantRegistry.recordTransaction(_merchant, _amount);
+                }
+            } catch {
+                // Recipient is not a merchant, skip recording
+            }
         }
 
         // Record payment
