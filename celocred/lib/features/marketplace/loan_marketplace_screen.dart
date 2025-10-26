@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/services/contract_service.dart';
-import 'loan_detail_screen.dart';
 
 /// Loan Marketplace Screen
 class LoanMarketplaceScreen extends StatefulWidget {
@@ -14,8 +13,6 @@ class _LoanMarketplaceScreenState extends State<LoanMarketplaceScreen> {
   final _contractService = ContractService();
   
   String _selectedFilter = 'All';
-  String _sortBy = 'Recently Listed';
-  
   bool _isLoading = true;
   List<String> _loanIds = [];
 
@@ -97,7 +94,10 @@ class _LoanMarketplaceScreenState extends State<LoanMarketplaceScreen> {
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.sort),
                   onSelected: (value) {
-                    setState(() => _sortBy = value);
+                    // TODO: Implement sorting
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Sorting by $value')),
+                    );
                   },
                   itemBuilder: (context) => [
                     const PopupMenuItem(
@@ -319,238 +319,9 @@ class _LoanMarketplaceScreenState extends State<LoanMarketplaceScreen> {
     );
   }
 
-  Widget _buildLoanCardOld(int index) {
-    final merchantNames = ['Café Bliss', 'Tech Express', 'Corner Store', 'Coffee Delight', 'Market Hub'];
-    final creditScores = [78, 65, 52, 81, 59];
-    final loanAmounts = [500.0, 750.0, 300.0, 1000.0, 400.0];
-    final interestRates = [12.0, 14.0, 16.0, 10.0, 15.0];
-    final termDays = [60, 90, 30, 60, 90];
-    final fundedAmounts = [300.0, 450.0, 150.0, 800.0, 200.0];
-    final lenderCounts = [5, 8, 3, 12, 4];
-    
-    final creditScore = creditScores[index];
-    final scoreColor = creditScore >= 70
-        ? Colors.green
-        : creditScore >= 50
-            ? Colors.orange
-            : Colors.red;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Merchant Info
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.green.shade100,
-                  child: Text('M${index + 1}'),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        merchantNames[index],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        'Food & Beverage • Mumbai',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Credit Score
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: index % 3 == 0
-                    ? Colors.green.shade100
-                    : index % 3 == 1
-                        ? Colors.yellow.shade100
-                        : Colors.orange.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Credit Score: ${[78, 65, 52, 81, 59][index]}/100',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    index % 3 == 0 ? '🟢' : index % 3 == 1 ? '🟡' : '🔴',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Loan Details
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildLoanDetail('Amount', '${loanAmounts[index].toStringAsFixed(0)} cUSD'),
-                _buildLoanDetail('Interest', '${interestRates[index].toStringAsFixed(0)}% APR'),
-                _buildLoanDetail('Term', '${termDays[index]} days'),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Funding Progress
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${fundedAmounts[index].toStringAsFixed(0)}/${loanAmounts[index].toStringAsFixed(0)} cUSD funded',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    Text(
-                      '${((fundedAmounts[index] / loanAmounts[index]) * 100).toStringAsFixed(0)}%',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                LinearProgressIndicator(
-                  value: fundedAmounts[index] / loanAmounts[index],
-                  backgroundColor: Colors.grey.shade200,
-                  color: Colors.orange,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${[4, 3, 2, 7, 3][index]} lenders',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-            
-            if (index % 2 == 0) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock, size: 14, color: Colors.blue),
-                    SizedBox(width: 4),
-                    Text(
-                      'NFT Collateral Secured',
-                      style: TextStyle(fontSize: 11, color: Colors.blue),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            const SizedBox(height: 12),
-            
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoanDetailScreen(
-                            loanId: 'loan-$index',
-                            merchantName: merchantNames[index],
-                            creditScore: creditScores[index],
-                            loanAmount: loanAmounts[index],
-                            interestRate: interestRates[index],
-                            termDays: termDays[index],
-                            fundedAmount: fundedAmounts[index],
-                            lenderCount: lenderCounts[index],
-                            hasNFTCollateral: index % 2 == 0,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text('View Details'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Fund now
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                    ),
-                    child: const Text('Fund Now'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildLoanDetail(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey.shade600,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
+
 
   void _showFilterSheet() {
     showModalBottomSheet(

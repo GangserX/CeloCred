@@ -16,6 +16,9 @@ class AppKitService {
 
   AppKitService._();
 
+  /// Check if AppKit is initialized
+  bool get isInitialized => _isInitialized;
+
   /// Initialize AppKit with WalletConnect
   Future<void> initialize(BuildContext context) async {
     if (_isInitialized) return;
@@ -34,6 +37,32 @@ class AppKitService {
             universal: 'https://celocred.app',
           ),
         ),
+        // Configure for Celo Sepolia testnet
+        requiredNamespaces: {
+          'eip155': RequiredNamespace(
+            chains: [
+              'eip155:${CeloConfig.celoTestnetChainId}', // Celo Sepolia testnet
+            ],
+            methods: [
+              'eth_sendTransaction',
+              'eth_signTransaction',
+              'eth_sign',
+              'personal_sign',
+              'eth_signTypedData',
+            ],
+            events: ['chainChanged', 'accountsChanged'],
+          ),
+        },
+        optionalNamespaces: {
+          'eip155': RequiredNamespace(
+            chains: ['eip155:42220'], // Celo Mainnet (optional)
+            methods: [
+              'eth_sendTransaction',
+              'eth_call',
+            ],
+            events: ['chainChanged', 'accountsChanged'],
+          ),
+        },
       );
 
       // Configure for Celo Alfajores testnet
@@ -87,6 +116,59 @@ class AppKitService {
     return _appKitModal?.isConnected ?? false;
   }
 
+  /// Get the current chainId
+  Future<int?> getCurrentChainId() async {
+    if (!isConnected) return null;
+
+    try {
+      final session = _appKitModal!.session;
+      if (session == null) return null;
+
+      final result = await _appKitModal!.request(
+        topic: session.topic,
+        chainId: 'eip155:${CeloConfig.celoTestnetChainId}',
+        request: SessionRequestParams(
+          method: 'eth_chainId',
+          params: [],
+        ),
+      );
+
+      // Result is a hex string like "0xaef3"
+      final chainIdHex = result.toString();
+      return int.parse(chainIdHex.substring(2), radix: 16);
+    } catch (e) {
+      debugPrint('❌ Error getting chain ID: $e');
+      return null;
+    }
+  }
+
+  /// Switch to a specific chain
+  Future<bool> switchChain(int chainId) async {
+    if (!isConnected) return false;
+
+    try {
+      final session = _appKitModal!.session;
+      if (session == null) return false;
+
+      // Format chain ID as hex string
+      final chainIdHex = '0x${chainId.toRadixString(16)}';
+
+      await _appKitModal!.request(
+        topic: session.topic,
+        chainId: 'eip155:$chainId',
+        request: SessionRequestParams(
+          method: 'wallet_switchEthereumChain',
+          params: [{'chainId': chainIdHex}],
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint('❌ Error switching chain: $e');
+      return false;
+    }
+  }
+
   /// Disconnect wallet
   Future<void> disconnect() async {
     if (_appKitModal != null && isConnected) {
@@ -102,6 +184,7 @@ class AppKitService {
     required BigInt value,
     String? data,
     BigInt? gas,
+    bool isPaymentTransaction = false, // Kept for backward compatibility
   }) async {
     if (!isConnected) {
       throw Exception('Wallet not connected. Please connect your wallet first.');
@@ -128,9 +211,10 @@ class AppKitService {
       };
 
       // Send to wallet for signing (USER APPROVES HERE!)
+      // All transactions now use Sepolia testnet
       final result = await _appKitModal!.request(
         topic: session.topic,
-        chainId: 'eip155:${CeloConfig.chainId}',
+        chainId: 'eip155:${CeloConfig.celoTestnetChainId}',
         request: SessionRequestParams(
           method: 'eth_sendTransaction',
           params: [tx],
@@ -153,6 +237,7 @@ class AppKitService {
   Future<dynamic> call({
     required String to,
     required String data,
+    bool isPaymentTransaction = false, // Kept for backward compatibility
   }) async {
     if (!isConnected) {
       throw Exception('Wallet not connected');
@@ -164,9 +249,10 @@ class AppKitService {
         throw Exception('No active session');
       }
 
+      // All operations use Sepolia testnet
       final result = await _appKitModal!.request(
         topic: session.topic,
-        chainId: 'eip155:${CeloConfig.chainId}',
+        chainId: 'eip155:${CeloConfig.celoTestnetChainId}',
         request: SessionRequestParams(
           method: 'eth_call',
           params: [
@@ -188,7 +274,7 @@ class AppKitService {
   }
 
   /// Sign a message (for authentication, etc.)
-  Future<String> signMessage(String message) async {
+  Future<String> signMessage(String message, {bool isPaymentTransaction = false}) async {
     if (!isConnected) {
       throw Exception('Wallet not connected');
     }
@@ -199,9 +285,10 @@ class AppKitService {
         throw Exception('No active session');
       }
 
+      // All operations use Sepolia testnet
       final result = await _appKitModal!.request(
         topic: session.topic,
-        chainId: 'eip155:${CeloConfig.chainId}',
+        chainId: 'eip155:${CeloConfig.celoTestnetChainId}',
         request: SessionRequestParams(
           method: 'personal_sign',
           params: [message, connectedAddress],

@@ -30,25 +30,32 @@ class WalletProvider with ChangeNotifier {
   /// Initialize wallet state from storage
   Future<void> initialize() async {
     try {
-      // Check if wallet is already connected (from WalletConnect)
-      final connectedAddress = AppKitService.instance.connectedAddress;
+      // Only check if wallet is connected via WalletConnect (active session)
+      final appKit = AppKitService.instance;
       
-      if (connectedAddress != null) {
-        _walletAddress = connectedAddress;
-        _isConnected = true;
-        await _checkMerchantStatus(connectedAddress);
+      // Check if AppKit is initialized and connected
+      if (!appKit.isInitialized) {
+        _walletAddress = null;
+        _isConnected = false;
         notifyListeners();
         return;
       }
 
-      // Fallback: check stored wallet address
-      final storedAddress = await _storage.getWalletAddress();
-      if (storedAddress != null && storedAddress.isNotEmpty) {
-        _walletAddress = storedAddress;
-        _isConnected = false; // Not actively connected via WalletConnect
-        await _checkMerchantStatus(storedAddress);
+      final connectedAddress = appKit.connectedAddress;
+      if (connectedAddress != null && appKit.isConnected) {
+        _walletAddress = connectedAddress;
+        _isConnected = true;
+        await _checkMerchantStatus(connectedAddress);
         notifyListeners();
+        print('✅ Wallet connected: ${connectedAddress.substring(0, 10)}...');
+        return;
       }
+
+      // Don't auto-connect from storage - require fresh WalletConnect
+      print('ℹ️ No active wallet connection - please connect via WalletConnect');
+      _walletAddress = null;
+      _isConnected = false;
+      notifyListeners();
     } catch (e) {
       print('❌ Error initializing wallet state: $e');
     }
@@ -57,13 +64,23 @@ class WalletProvider with ChangeNotifier {
   /// Connect wallet via WalletConnect
   Future<bool> connectWallet(BuildContext context) async {
     try {
-      // Initialize AppKit if not already done
+      // Initialize AppKit if not already done or if it was disposed
       if (!context.mounted) return false;
       
-      try {
-        await AppKitService.instance.initialize(context);
-      } catch (e) {
-        debugPrint('AppKit already initialized: $e');
+      final appKit = AppKitService.instance;
+      if (!appKit.isInitialized) {
+        try {
+          await appKit.initialize(context);
+        } catch (e) {
+          debugPrint('❌ Error initializing AppKit: $e');
+          return false;
+        }
+      }
+
+      // Ensure initialization was successful
+      if (!appKit.isInitialized) {
+        debugPrint('❌ AppKit initialization failed');
+        return false;
       }
 
       // Open WalletConnect modal
@@ -140,7 +157,14 @@ class WalletProvider with ChangeNotifier {
 
   /// Refresh merchant status (call after merchant registration)
   Future<void> refreshMerchantStatus() async {
-    if (_walletAddress != null) {
+    // Get latest wallet address from AppKit
+    final address = AppKitService.instance.connectedAddress;
+    if (address != null) {
+      _walletAddress = address;
+      _isConnected = true;
+      await _checkMerchantStatus(address);
+    } else if (_walletAddress != null) {
+      // Fallback to stored address
       await _checkMerchantStatus(_walletAddress!);
     }
   }

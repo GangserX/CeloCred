@@ -151,7 +151,7 @@ class ContractService {
 
       final amountInWei = BigInt.from((amount * 1e18).toInt());
 
-      print('💰 Preparing CELO payment:');
+      print('💰 Preparing CELO payment on Sepolia:');
       print('   Amount: $amount CELO');
       print('   Amount in Wei: $amountInWei');
       print('   Merchant: $merchantAddress');
@@ -194,7 +194,7 @@ class ContractService {
 
       final amountInWei = BigInt.from((amount * 1e18).toInt());
 
-      print('💰 Processing cUSD payment (2 transactions):');
+      print('💰 Processing cUSD payment on Sepolia (2 transactions):');
       print('   Amount: $amount cUSD');
       print('   Merchant: $merchantAddress');
 
@@ -265,7 +265,7 @@ class ContractService {
 
       final amountInWei = BigInt.from((amount * 1e18).toInt());
 
-      print('📋 Preparing loan request:');
+      print('📋 Preparing loan request on Sepolia:');
       print('   Amount: $amount cUSD');
       print('   Interest Rate: ${interestRate / 100}%');
       print('   Duration: $durationDays days');
@@ -308,7 +308,7 @@ class ContractService {
 
       final amountInWei = BigInt.from((amount * 1e18).toInt());
 
-      print('📋 Preparing collateralized loan request:');
+      print('📋 Preparing collateralized loan request on Sepolia:');
       print('   Amount: $amount cUSD');
       print('   Interest Rate: ${interestRate / 100}%');
       print('   Duration: $durationDays days');

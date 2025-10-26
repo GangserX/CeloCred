@@ -52,9 +52,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       String? walletAddress = AppKitService.instance.connectedAddress;
       
       // Fallback to stored address if WalletConnect not active
-      if (walletAddress == null) {
-        walletAddress = await _storage.getWalletAddress();
-      }
+      walletAddress ??= await _storage.getWalletAddress();
       
       if (walletAddress == null) {
         throw Exception('No wallet connected');

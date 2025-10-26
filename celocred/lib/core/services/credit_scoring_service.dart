@@ -38,13 +38,7 @@ class CreditScoringService {
       dailyCounts.add(count);
     }
 
-    final avgDailyTxs = dailyCounts.isNotEmpty
-        ? dailyCounts.reduce((a, b) => a + b) / dailyCounts.length
-        : 0.0;
     final txVolatility = _calculateStdDev(dailyCounts);
-    final cashflowStability = avgDailyTxs > 0
-        ? (1 - (txVolatility / (avgDailyTxs + 0.1))).clamp(0.0, 1.0)
-        : 0.0;
 
     // Cash flow metrics
     final avgMonthlyCashflow = totalVolume / 3; // 90 days = 3 months
@@ -92,8 +86,6 @@ class CreditScoringService {
       avgMonthlyCashflow,
       AppConstants.capMonthlyCashflow.toDouble(),
     );
-    
-    final sStability = cashflowStability * 100;
     
     final sTenure = _normalize(
       accountAgeMonths.toDouble(),

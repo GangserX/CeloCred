@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  console.log("🚀 Starting CeloCred Smart Contract Deployment to Celo Alfajores...\n");
+  console.log("🚀 Starting CeloCred Smart Contract Deployment to Celo Sepolia...\n");
 
   const [deployer] = await hre.ethers.getSigners();
   console.log("📝 Deploying contracts with account:", deployer.address);
@@ -15,9 +15,13 @@ async function main() {
     process.exit(1);
   }
 
-  // cUSD token address on Alfajores testnet
-  const CUSD_ALFAJORES = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
-  console.log("📌 Using cUSD token at:", CUSD_ALFAJORES, "\n");
+  // cUSD token address on Sepolia testnet
+  const CUSD_TOKEN = process.env.CUSD_TOKEN_ADDRESS;
+  if (!CUSD_TOKEN) {
+    console.log("❌ ERROR: CUSD_TOKEN_ADDRESS not found in .env file");
+    process.exit(1);
+  }
+  console.log("📌 Using cUSD token at:", CUSD_TOKEN, "\n");
 
   // Deploy MerchantRegistry
   console.log("🏪 Deploying MerchantRegistry...");
@@ -30,7 +34,7 @@ async function main() {
   // Deploy PaymentProcessor (needs cUSD token AND merchant registry)
   console.log("💳 Deploying PaymentProcessor...");
   const PaymentProcessor = await hre.ethers.getContractFactory("PaymentProcessor");
-  const paymentProcessor = await PaymentProcessor.deploy(CUSD_ALFAJORES, merchantRegistryAddress);
+  const paymentProcessor = await PaymentProcessor.deploy(CUSD_TOKEN, merchantRegistryAddress);
   await paymentProcessor.waitForDeployment();
   const paymentProcessorAddress = await paymentProcessor.getAddress();
   console.log("✅ PaymentProcessor deployed to:", paymentProcessorAddress, "\n");
@@ -38,7 +42,7 @@ async function main() {
   // Deploy LoanEscrow
   console.log("🏦 Deploying LoanEscrow...");
   const LoanEscrow = await hre.ethers.getContractFactory("LoanEscrow");
-  const loanEscrow = await LoanEscrow.deploy(CUSD_ALFAJORES);
+  const loanEscrow = await LoanEscrow.deploy(CUSD_TOKEN);
   await loanEscrow.waitForDeployment();
   const loanEscrowAddress = await loanEscrow.getAddress();
   console.log("✅ LoanEscrow deployed to:", loanEscrowAddress, "\n");
@@ -64,14 +68,14 @@ async function main() {
   console.log("PaymentProcessor:", paymentProcessorAddress);
   console.log("LoanEscrow:", loanEscrowAddress);
   console.log("CreditScoreOracle:", creditScoreOracleAddress);
-  console.log("cUSD Token:", CUSD_ALFAJORES);
+  console.log("cUSD Token:", CUSD_TOKEN);
   console.log("\n═══════════════════════════════════════════════════════════════\n");
 
   console.log("📱 UPDATE YOUR FLUTTER APP:");
   console.log("File: celocred/lib/core/constants/celo_config.dart\n");
   console.log("Replace the contract addresses with the ones above.");
   console.log("\n🔍 View on Celo Explorer:");
-  console.log(`https://alfajores.celoscan.io/address/${merchantRegistryAddress}`);
+  console.log(`https://sepolia.explorer.celo.org/address/${merchantRegistryAddress}`);
   console.log("\n✅ Deployment complete!\n");
 }
 

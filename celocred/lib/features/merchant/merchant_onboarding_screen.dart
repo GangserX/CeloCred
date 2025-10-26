@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../core/providers/wallet_provider.dart';
 import '../../core/services/firebase_service.dart';
 import '../../core/services/contract_service.dart';
+import '../../core/services/appkit_service.dart';
+import '../../core/constants/celo_config.dart';
 import '../../core/models/merchant_profile.dart';
 import '../merchant/merchant_dashboard_screen.dart';
 
@@ -789,6 +791,20 @@ class _MerchantOnboardingScreenState extends State<MerchantOnboardingScreen> {
 
       if (walletAddress == null) {
         throw Exception('Wallet not connected');
+      }
+
+      // Ensure we're on Sepolia testnet
+      print('🔄 Checking current chain...');
+      final currentChainId = await AppKitService.instance.getCurrentChainId();
+      if (currentChainId != CeloConfig.celoTestnetChainId) {
+        print('⚠️ Wrong chain detected. Switching to Sepolia...');
+        final switched = await AppKitService.instance.switchChain(
+          CeloConfig.celoTestnetChainId,
+        );
+        if (!switched) {
+          throw Exception('Failed to switch to Sepolia testnet');
+        }
+        print('✅ Switched to Sepolia testnet');
       }
 
       // Create merchant profile

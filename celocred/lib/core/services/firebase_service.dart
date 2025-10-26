@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../models/merchant_profile.dart';
 import '../models/user_preferences.dart';
+import '../../firebase_options.dart';
 
 /// Firebase Service - Handles all Firebase operations
 class FirebaseService {
@@ -23,7 +24,12 @@ class FirebaseService {
     if (_isInitialized) return;
 
     try {
-      await Firebase.initializeApp();
+      // Import Firebase options
+      final options = DefaultFirebaseOptions.currentPlatform;
+      
+      // Initialize with options
+      await Firebase.initializeApp(options: options);
+      
       _firestore = FirebaseFirestore.instance;
       _storage = FirebaseStorage.instance;
       _isInitialized = true;

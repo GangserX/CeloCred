@@ -5,17 +5,16 @@ class CeloConfig {
 
   // Chain IDs
   static const int celoMainnetChainId = 42220;
-  static const int celoAlfajoresChainId = 44787;
+  static const int celoTestnetChainId = 44787; // Celo Sepolia Testnet
 
   static int get chainId =>
-      useTestnet ? celoAlfajoresChainId : celoMainnetChainId;
+      useTestnet ? celoTestnetChainId : celoMainnetChainId;
 
   // RPC Endpoints
   static const String celoMainnetRpc = 'https://forno.celo.org';
-  static const String celoAlfajoresRpc =
-      'https://alfajores-forno.celo-testnet.org';
+  static const String celoTestnetRpc = 'https://sepolia-forno.celo-testnet.org';
 
-  static String get rpcUrl => useTestnet ? celoAlfajoresRpc : celoMainnetRpc;
+  static String get rpcUrl => useTestnet ? celoTestnetRpc : celoMainnetRpc;
 
   // Token Addresses - Mainnet
   static const String celoMainnetAddress =
@@ -25,21 +24,21 @@ class CeloConfig {
   static const String cEURMainnetAddress =
       '0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73';
 
-  // Token Addresses - Alfajores Testnet
-  static const String celoAlfajoresAddress =
+  // Token Addresses - Sepolia Testnet
+  static const String celoSepoliaAddress =
       '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9';
-  static const String cUSDAlfajoresAddress =
+  static const String cUSDSepoliaAddress =
       '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1';
-  static const String cEURAlfajoresAddress =
+  static const String cEURSepoliaAddress =
       '0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F';
 
   // Get current network addresses
   static String get celoAddress =>
-      useTestnet ? celoAlfajoresAddress : celoMainnetAddress;
+      useTestnet ? celoSepoliaAddress : celoMainnetAddress;
   static String get cUSDAddress =>
-      useTestnet ? cUSDAlfajoresAddress : cUSDMainnetAddress;
+      useTestnet ? cUSDSepoliaAddress : cUSDMainnetAddress;
   static String get cEURAddress =>
-      useTestnet ? cEURAlfajoresAddress : cEURMainnetAddress;
+      useTestnet ? cEURSepoliaAddress : cEURMainnetAddress;
 
   // Gas Configuration
   static const int defaultGasLimit = 200000;
@@ -47,32 +46,32 @@ class CeloConfig {
 
   // Explorer URLs
   static const String celoMainnetExplorer = 'https://explorer.celo.org';
-  static const String celoAlfajoresExplorer =
-      'https://alfajores-blockscout.celo-testnet.org';
+  static const String celoTestnetExplorer =
+      'https://sepolia.explorer.celo.org';
 
   static String get explorerUrl =>
-      useTestnet ? celoAlfajoresExplorer : celoMainnetExplorer;
+      useTestnet ? celoTestnetExplorer : celoMainnetExplorer;
 
-  // Contract Addresses - DEPLOYED TO ALFAJORES TESTNET
+  // Contract Addresses - DEPLOYED TO SEPOLIA TESTNET
   static const String merchantRegistryMainnet =
-      '0x0000000000000000000000000000000000000000'; // TODO: Deploy
+      '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String merchantRegistryTestnet =
-      '0x161DA951ba19DEac6a281e22C725829D28735eC4'; // ✅ Deployed (Oct 26, 2025)
+      '0x5E9C136D8a73E3B964629D4a1D700061DdDc79cD'; // ✅ Deployed on Sepolia (Oct 26, 2025)
 
   static const String loanEscrowMainnet =
-      '0x0000000000000000000000000000000000000000'; // TODO: Deploy
+      '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String loanEscrowTestnet =
-      '0x11D6DaF8A38ccaa156C077309Dd4C86A1cFE9E68'; // ✅ Deployed (Oct 26, 2025)
+      '0x18F0f12d38eF0a0994018081EEd7cF2bc9277d15'; // ✅ Deployed on Sepolia (Oct 26, 2025)
 
   static const String paymentProcessorMainnet =
-      '0x0000000000000000000000000000000000000000'; // TODO: Deploy
+      '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String paymentProcessorTestnet =
-      '0x56fC686df48b1e7EC99a8d48fCab37844F87b3Ad'; // ✅ Deployed (Oct 26, 2025)
+      '0x71FFF6e3120d1AacC6eFb22Ca357654c591F5A70'; // ✅ Deployed on Sepolia (Oct 26, 2025)
 
   static const String creditScoreOracleMainnet =
-      '0x0000000000000000000000000000000000000000'; // TODO: Deploy
+      '0x0000000000000000000000000000000000000000'; // TODO: Deploy to mainnet
   static const String creditScoreOracleTestnet =
-      '0xaF04bC6b274d6De4e6d260BDFA6B57EB14fd3C4c'; // ✅ Deployed (Oct 26, 2025)
+      '0xeD8A8199d2C6080E6d1dD501E2AEcD32668b0Ae9'; // ✅ Deployed on Sepolia (Oct 26, 2025)
 
   static String get merchantRegistryAddress =>
       useTestnet ? merchantRegistryTestnet : merchantRegistryMainnet;

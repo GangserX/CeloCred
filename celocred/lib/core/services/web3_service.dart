@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:web3dart/web3dart.dart' hide Wallet;
 import '../constants/celo_config.dart';
 import '../models/wallet_model.dart';
-import 'storage_service.dart';
 import 'package:web3dart/crypto.dart';
 
 /// Web3 service for blockchain interactions
@@ -11,7 +10,6 @@ class Web3Service {
   late Web3Client _client;
   late EthereumAddress _cUSDAddress;
   late EthereumAddress _cEURAddress;
-  final StorageService _storage = StorageService();
 
   Web3Service() {
     _client = Web3Client(CeloConfig.rpcUrl, http.Client());
