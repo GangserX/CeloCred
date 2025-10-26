@@ -188,7 +188,7 @@ Our FICO-like algorithm (300-850 range) considers:
 
 <table>
   <tr>
-    <td><img src="celocred/assets/ui_reference/home_screen_design.png" width="250" alt="Home Screen"/></td>
+    
     <td><img src="celocred/assets/images/merchant_dashboard.png" width="250" alt="Merchant Dashboard"/></td>
     <td><img src="celocred/assets/images/loan_marketplace.png" width="250" alt="Loan Marketplace"/></td>
   </tr>
