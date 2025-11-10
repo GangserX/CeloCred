@@ -8,6 +8,13 @@
 
 ![CeloCred Banner](celocred/assets/images/banner.png)
 
+### Deployed Contract Addresses (Celo Sepolia Testnet)
+```
+MerchantRegistry:    0x8d84bB7d706DDDF2406C9584B1a2d5e0A740ebd2
+PaymentProcessor:    0xBe5893D9E56d79bdC84C4647184dCB3b772c04D9
+LoanEscrow:          0xA692dF938c107d358543eCDa9a91a291ec9A8B8F
+CreditScoreOracle:   0x6CE459798353B4Bd0396CA7b4b6893CC26140C41
+```
 ## 📱 Latest Updates (October 26, 2025)
 
 ### Enhanced Merchant Dashboard & QR Scanner
@@ -22,13 +29,6 @@
 - ✅ **Enhanced Error Handling**: PaymentProcessor uses try-catch for merchant verification
 - ✅ **Comprehensive Testing**: 15+ integration tests verify all app features work correctly
 
-### Deployed Contract Addresses (Celo Sepolia Testnet)
-```
-MerchantRegistry:    0x8d84bB7d706DDDF2406C9584B1a2d5e0A740ebd2
-PaymentProcessor:    0xBe5893D9E56d79bdC84C4647184dCB3b772c04D9
-LoanEscrow:          0xA692dF938c107d358543eCDa9a91a291ec9A8B8F
-CreditScoreOracle:   0x6CE459798353B4Bd0396CA7b4b6893CC26140C41
-```
 
 ---
 
